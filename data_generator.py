@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-%matplotlib inline
-#notebook
+#%matplotlib inline #notebook
 from IPython.display import display
 pd.options.display.max_columns = None
 pd.options.display.max_rows = None
@@ -10,7 +9,7 @@ import os
 import h5py
 
 #### Get all files of this path
-def get_dir_files(path, just_filename=True):
+def get_dir_files(path, just_filename=True, print_info=False):
     files = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         if just_filename:
@@ -18,7 +17,9 @@ def get_dir_files(path, just_filename=True):
         else:
             direc = dirpath.split('/')[-1]
             files.extend([direc+'/'+file for file in filenames])
-    print('get_dir_files\nFiles: ',files)
+
+    if print_info:
+        print('get_dir_files\nFiles: ',files)
     return files
 
 
@@ -28,6 +29,15 @@ def read_csv_files(path, files, print_info=False):
     for f in files:
         file_name = path+f
         meta_data = pd.read_csv(file_name,delimiter='\t',header=0)
+
+        # Convert to numpy arrays and strings must be 'bytes'
+        for k in meta_data.keys():
+            if type(meta_data[k][0]) == str:
+                meta_data[k] = np.array(meta_data[k], dtype='bytes')
+            else:
+                meta_data[k] = np.float32(meta_data[k])
+
+        meta_data['video_id'] = get_video_ids(data_list=meta_data['filename'])
         data[f] = meta_data
         if print_info:
             print('\n*************************\n'+f)
@@ -36,14 +46,46 @@ def read_csv_files(path, files, print_info=False):
     return data
         
 
-# Saving the video ID's in a np.array for each file
-def get_video_ids(data):
-    video_ids = {}
-    for k in data.keys():
-        # All YouTuBe video ID's consist of 11 characters, never consider the first 'Y'
-        video_ids[k] = np.array([md[1:12] for md in data[k]['filename']])
-    return video_ids
+#### Add a column with the video ID's in a np.array for each file
+def get_video_ids(data_list, print_info=False):
+    # All YouTuBe video ID's consist of 11 characters, never consider the first 'Y'
+    return np.array([md[1:12] for md in data_list], dtype='bytes') # IMP! string type in 'bytes'
 
+
+#### Detect files with strongly labeled data and concatenate them in a dict
+def get_strongly_labeled(data, print_info=False):
+    str_files = []
+    for f in data.keys():
+        for col in data[f].keys():
+            if col == 'onset': # this file has strongly labeled data
+                str_files.extend([f])
+                break
+    # initialization (needed to concatenate)
+    str_lab = {'filename': np.array(['0'],dtype='bytes'),
+                'onset': np.float32([0]),
+                'offset': np.float32([0]),
+                'event_label': np.array(['0'],dtype='bytes'),
+                'video_id': np.array(['0'],dtype='bytes')
+              }
+    
+    # Concatenate the strongly labeled in 'str_lab'
+    for f in str_files:
+        isFirst = False
+        if len(str_lab['onset'])<2 and str_lab['onset']==0.0:
+            isFirst = True
+        
+        for k in str_lab.keys():
+            str_lab[k] = np.concatenate((str_lab[k], data[f][k]))
+            
+            if isFirst: # delete the initial value
+                str_lab[k] = str_lab[k][1:]
+
+    if print_info:
+        print('\n\nStrongly labeled data files: ', str_files)
+        for k in str_lab.keys():
+            print('    ' + k + ': ' + str(str_lab[k].shape))
+
+    return str_lab
 
 #######################
 #######################
@@ -72,11 +114,11 @@ def bool_to_float32(y):
 def read_h5_files(path, files, print_info=False): # Still to modify
     #initialization of outputs
     data = {}
-    pd_data = pd.DataFrame()
-    pd_data['x'] = np.array([])
-    pd_data['y'] = np.array([])
-    pd_data['id'] = np.array([])
-    pd_data.set_index('id',inplace=True)
+    # pd_data = pd.DataFrame()
+    # pd_data['x'] = np.array([])
+    # pd_data['y'] = np.array([])
+    # pd_data['id'] = np.array([])
+    # pd_data.set_index('id',inplace=True)
 
     for f in files:
         data[f] = {}
@@ -86,22 +128,24 @@ def read_h5_files(path, files, print_info=False): # Still to modify
         (x, y, video_id_list) = load_data(hdf5_path)
         x = np.array(uint8_to_float32(x))     # shape: (N, 10, 128)
         y = np.array(bool_to_float32(y))      # shape: (N, 527)
-        video_id_list = np.array([str(v)[2:-1] for v in video_id_list]) # take just the ID
+        video_id_list = np.array([str(v)[2:-1] for v in video_id_list], dtype='bytes') # take just the ID
 
+        # Save in a dict
         data[f]['x'] = x
         data[f]['y'] = y
-        data[f]['video_id_list'] = video_id_list
+        data[f]['video_id'] = video_id_list
 
-        pd_data['x'] = np.concatenate((pd_data['x'],x), axis=None)
-        pd_data['y'] = np.concatenate((pd_data['y'],y), axis=None)
-        pd_data['id'] = np.concatenate((np.array([]),video_id_list), axis=None)
+        # Save in a pd
+        # pd_data['x'] = np.concatenate((pd_data['x'],x), axis=None)
+        # pd_data['y'] = np.concatenate((pd_data['y'],y), axis=None)
+        # pd_data['id'] = np.concatenate((np.array([]),video_id_list), axis=None)
         
         # print info
         if print_info:
-            print('x',x.shape)
-            print('y',y.shape)
-            print('video id',len(video_id_list))
-    return {'dict_data':data, 'pd_data':pd_data}
+            print('x',data[f]['x'].shape)
+            print('y',data[f]['y'].shape)
+            print('video id',data[f]['video_id'].shape)
+    return data #{'dict_data':data, 'pd_data':pd_data}
     
 
 ###################
@@ -111,34 +155,23 @@ def gen_data():
     #### START - GET DCASE LABELS ####
     dcase_path = '../dcase2018_baseline/task4/dataset/metadata/'
     dcase_files = get_dir_files(path=dcase_path, just_filename=False)
-    data = read_csv_files(path=dcase_path, files=dcase_files, print_info=False)
-    #print(data.keys())
-    video_ids = get_video_ids(data=data)
-    #print(video_ids.keys())
 
-    # Check that it worked for the first 2 videos in the first file.
-    #print('\n\nClip names:\n',data[list(data.keys())[0]]['filename'][:2])
-    #print('\n\nClip ids:\n',list(video_ids.values())[0][:2])
-
-    dcase_eval = data['eval/eval.csv']
-    #print(dcase_eval.head())
-    dcase_eval._set_item('id', video_ids['eval/eval.csv'])
-    dcase_eval.set_index('id',inplace=True)
-    #print(dcase_eval.head())
+    # Read data and add column with video_id from video name
+    dcase_data = read_csv_files(path=dcase_path, files=dcase_files, print_info=True)
+    
+    # get only strongly labeled data in a dict
+    dcase_str_lab_data = get_strongly_labeled(data=dcase_data, print_info=True)
 
     #### END - GET DCASE LABELS ####
 
 
-
     #### START - GET AUDIOSET DATA ####
     audioset_path = '../packed_features/'
-    audioset_files = get_dir_files(path=audioset_path, just_filename=True)
+    audioset_files = get_dir_files(path=audioset_path, just_filename=True, print_info=False)
     # Keep just the ones with extension .h5 and NOT unbalanced data!
     audioset_files = [f for f in audioset_files if (f.split('.')[-1] == 'h5') and (f.split('_')[0] != 'unbal')]
 
-    audioset_data = read_h5_files(path, files, print_info=False) # Still to modify
-    # because we want it in DataFrame and not as dict, see the function
-    audioset_data = audioset_data['pd_data']
+    audioset_data = read_h5_files(path=audioset_path, files=audioset_files, print_info=True) # Still to modify
 
     # Let's have a look at some of the data
     """
@@ -147,7 +180,11 @@ def gen_data():
         params = ['x','y','video_id_list']
         for p in params:
             print('\n'+p+':')
-            print(data[d][p][0])
+            if p == 'video_id_list':
+                pass
+                print(data[d][p][0])
+            else:
+                print(data[d][p])
     """
 
     #### END - GET AUDIOSET DATA ####
@@ -155,10 +192,44 @@ def gen_data():
 
 
     #### START - SELECTING STRONGLY LABELED DATA ####
-    dataset = pd.merge(dcase_eval, audioset_data, on='id', how='inner') # inner = onñy if it exixt in both
-    print()
+    
+    print('\n\nDCASE strongly labeled data: ', dcase_str_lab_data.keys())
+    print('Audioset data: ', audioset_data['bal_train.h5']['y'][0:1].shape)
 
+    x_shape = audioset_data['bal_train.h5']['x'][0:1].shape
+    y_shape = audioset_data['bal_train.h5']['y'][0:1].shape
+
+    # initialization
+    dataset = {'x': np.zeros(x_shape),
+    		   'y': np.zeros(y_shape),
+    		   'video_id': np.array(['0'], dtype='bytes'),
+    		   'onset': np.float32([0.0]),
+    		   'offset': np.float32([0.0]),
+    		   'event_label': np.array(['0'], dtype='bytes'),
+    		   'filename': np.array(['0'], dtype='bytes')}
+               
+    print('\n\nDataset', dataset)
+    """
+    for 
+    found = False
+    for ka in audioset_data.keys(): # AudioSet
+		find_id = '9OqtuFGCCR8'#'Sb0169-lqLs'
+		#print(v.)
+		count = 0
+		for id_a in audioset_data[ka]['id']: # bal_train and eval
+		    if id_a == find_id:
+		        print(id_a)
+		        found = True
+
+		        dataset['x'] = np.concatenate(dataset['x'], [audioset_data[ka]['x'][count]])
+		        break
+		    count = count + 1
+		if found:
+			break
+    """
     #### END - SELECTING STRONGLY LABELED DATA ####
 
+    return dataset
+
 if __name__ == '__main__':
-    gen_data()
+    dataset = gen_data()
