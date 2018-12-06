@@ -5,7 +5,7 @@ Final project working with Google AudioSet inspired in DCASE2018 Challange (Task
 See project documentation: https://drive.google.com/drive/folders/1wYKw9w9nIngUnUSXUytIEmZBjXbPZIWh<br><br>
 
 
-##!!! BEFORE CLONING THIS REPOSITORY !!!
+## !!! BEFORE CLONING THIS REPOSITORY !!!
 We recommend you to create a folder in your computer (e.g. 'your_project') and then clone it inside this folder.<br><br>
 
 
@@ -44,12 +44,12 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 
 
-###Practical information
+### Practical information
 
-*** If at some point you need to download the dataset again but the setup is already done you can just run the shell script 'data_generator.sh'
+*If at some point you need to download the dataset again but the setup is already done you can just run the shell script 'data_generator.sh'*
 
 
-*** If you want to remove the folders created by during the setup you can just run the shell script 'remove_all.sh'. Then it will look like this again:
+*If you want to remove the folders created by during the setup you can just run the shell script 'remove_all.sh'. Then it will look like this again:*
 
 	your_project/
 	    |_ 02456_project_audioset_attention (this repository)
@@ -59,7 +59,9 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 
 
-###Other sources of information:<br>
-	Repositories:<br>
-		https://github.com/DTUComputeCognitiveSystems/AI_playground/blob/master/notebooks/experiments/Sound%20Demo%203%20-%20Multi-label%20classifier%20pretrained%20on%20audioset.ipynb
-		...
+### Other sources of information:
+Repositories:
+https://github.com/DTUComputeCognitiveSystems/AI_playground/blob/master/notebooks/experiments/Sound%20Demo%203%20-%20Multi-label%20classifier%20pretrained%20on%20audioset.ipynb
+.
+.
+.
