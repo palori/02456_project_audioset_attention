@@ -1,23 +1,23 @@
 # 02456_project_audioset_attention
-Deep learning, DTU 02456. Autumn 2018.
+Deep learning, DTU 02456. Autumn 2018.<br>
 
-Final project working with Google AudioSet inspired in DCASE2018 Challange (Task 4).
-See project documentation: https://drive.google.com/drive/folders/1wYKw9w9nIngUnUSXUytIEmZBjXbPZIWh
+Final project working with Google AudioSet inspired in DCASE2018 Challange (Task 4).<br>
+See project documentation: https://drive.google.com/drive/folders/1wYKw9w9nIngUnUSXUytIEmZBjXbPZIWh<br><br>
 
 
 ##!!! BEFORE CLONING THIS REPOSITORY !!!
-We recommend you to create a folder in your computer (e.g. 'your_project') and then clone it inside this folder.
+We recommend you to create a folder in your computer (e.g. 'your_project') and then clone it inside this folder.<br><br>
 
 
 1. Create a folder 'your_project'
 
-	your_project
+	your_project<br>
 
 
 2. Clone this repository inside the folder
 
 	your_project/<br>
-    	|_ 02456_project_audioset_attention (this repository)
+    	|_ 02456_project_audioset_attention (this repository)<br>
 
 
 3. Run 'setup.sh' (sh setup.sh) to download and clone the files (it might take a while). It will automatically do the following:
@@ -30,15 +30,15 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 	3.4. Generate dataset
 
-	your_project/
-	    |_ 02456_project_audioset_attention (this repository)
-	    |_ audioset_classification
-	    |_ dcase2018_baseline
-	   	|_ packed_features
-	   	|_ dataset -----------------------> (might be included, not sure yet)
+	your_project/<br>
+	    |_ 02456_project_audioset_attention (this repository)<br>
+	    |_ audioset_classification<br>
+	    |_ dcase2018_baseline<br>
+	   	|_ packed_features<br>
+	   	|_ dataset -----------------------> (might be included, not sure yet)<br>
 
 
-4. You are now ready to run the
+4. You are now ready to run the... ('runme.sh')
 
 5. If you want to see some of our results open the Jupyter notebook 'Results.ipynb' and run it.
 
@@ -51,15 +51,15 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 *** If you want to remove the folders created by during the setup you can just run the shell script 'remove_all.sh'. Then it will look like this again:
 
-	your_project/
-	    |_ 02456_project_audioset_attention (this repository)
+	your_project/<br>
+	    |_ 02456_project_audioset_attention (this repository)<br>
 
 
 
 
 
 
-###Other sources of information:
-	Repositories:
+###Other sources of information:<br>
+	Repositories:<br>
 		https://github.com/DTUComputeCognitiveSystems/AI_playground/blob/master/notebooks/experiments/Sound%20Demo%203%20-%20Multi-label%20classifier%20pretrained%20on%20audioset.ipynb
 		...
