@@ -17,7 +17,7 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 2. Clone this repository inside the folder
 
 		your_project/
-		|_ 02456_project_audioset_attention (this repository)
+		    |_ 02456_project_audioset_attention (this repository)
 
 
 3. Run 'setup.sh' (sh setup.sh) to download and clone the files (it might take a while). It will automatically do the following:
