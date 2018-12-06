@@ -16,7 +16,7 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 2. Clone this repository inside the folder
 
-	your_project/
+	your_project/<br>
     	|_ 02456_project_audioset_attention (this repository)
 
 
