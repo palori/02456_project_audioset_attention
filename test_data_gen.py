@@ -25,10 +25,10 @@ def reduce_dataset(path, filename, num_files=1000, save=True):
 if __name__ == '__main__':
     path = '../packed_features/'
     reduce_dataset(path, 'bal_train.h5', 3000)
-    reduce_dataset(path, 'eval.h5', 1000)
+    reduce_dataset(path, 'eval.h5', 3000)
     path = ''
     reduce_dataset(path, 'bal_train.h5', 3000, False)
-    reduce_dataset(path, 'eval.h5', 1000, False)
+    reduce_dataset(path, 'eval.h5', 3000, False)
 
 
  
