@@ -176,8 +176,15 @@ def dataset_init(x_shape, y_shape):
 #### Find matches with 'video_id' and return the concatenation of them
 def concatenate_matches(dcase_str_lab_data, audioset_data):
 	# initialization
-	x_shape = audioset_data['bal_train.h5']['x'][0:1].shape
-	y_shape = audioset_data['bal_train.h5']['y'][0:1].shape
+	try:
+		x_shape = audioset_data['bal_train.h5']['x'][0:1].shape
+		y_shape = audioset_data['bal_train.h5']['y'][0:1].shape
+	except KeyError:
+		try:
+			x_shape = audioset_data['eval.h5']['x'][0:1].shape
+			y_shape = audioset_data['eval.h5']['y'][0:1].shape
+		except KeyError:
+			print("    KeyError!!!")
 	dataset = dataset_init(x_shape, y_shape)
 			   
 	#print('\n\nDataset', dataset) # 0-initialization
@@ -219,6 +226,8 @@ def create_strong_output(dataset):
 	return dataset
 
 
+def save2h5(dataset):
+	pass
 
 ###################
 ###################
@@ -269,7 +278,7 @@ def gen_data(dataset_file_name,
 		#### START - GET AUDIOSET DATA ####
 		audioset_files = get_dir_files(path=audioset_path, just_filename=True, print_info=False)
 		# Keep just the ones with extension .h5 and NOT unbalanced data!
-		audioset_files = [f for f in audioset_files if (f.split('.')[-1] == 'h5') and (f.split('_')[0] != 'unbal')]
+		audioset_files = [f for f in audioset_files if (f.split('.')[-1] == 'h5') and (f.split('_')[0] != 'unbal')] #@@@@ modify if we want the strong from the unbalanced too
 
 		audioset_data = read_h5_files(path=audioset_path, files=audioset_files, print_info=True) # Still to modify
 		#### END - GET AUDIOSET DATA ####
@@ -294,6 +303,7 @@ def gen_data(dataset_file_name,
 
 
 		# Last step: save in the 'h5' file
+		#### maybe put it in a function: save2h5(dataset)
 		grp = f.create_group('grp')
 		for k in dataset.keys():
 			print('\n  '+k+' type=', type(dataset[k][0]))
