@@ -34,8 +34,8 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 		    |_ 02456_project_audioset_attention (this repository)
 		    |_ audioset_classification
 		    |_ dcase2018_baseline
-			|_ packed_features
-			|_ dataset -----------------------> (might be included, not sure yet)
+		    |_ packed_features
+		    |_ dataset -----------------------> (might be included, not sure yet)
 
 
 4. You are now ready to run the... ('runme.sh')
