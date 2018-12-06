@@ -11,13 +11,13 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 1. Create a folder 'your_project'
 
-	your_project<br>
+		your_project
 
 
 2. Clone this repository inside the folder
 
-	your_project/<br>
-    	|_ 02456_project_audioset_attention (this repository)<br>
+		your_project/
+		|_ 02456_project_audioset_attention (this repository)
 
 
 3. Run 'setup.sh' (sh setup.sh) to download and clone the files (it might take a while). It will automatically do the following:
@@ -30,12 +30,12 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 	3.4. Generate dataset
 
-	your_project/<br>
-	    |_ 02456_project_audioset_attention (this repository)<br>
-	    |_ audioset_classification<br>
-	    |_ dcase2018_baseline<br>
-	   	|_ packed_features<br>
-	   	|_ dataset -----------------------> (might be included, not sure yet)<br>
+		your_project/
+		    |_ 02456_project_audioset_attention (this repository)
+		    |_ audioset_classification
+		    |_ dcase2018_baseline
+			|_ packed_features
+			|_ dataset -----------------------> (might be included, not sure yet)
 
 
 4. You are now ready to run the... ('runme.sh')
@@ -51,8 +51,8 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 *** If you want to remove the folders created by during the setup you can just run the shell script 'remove_all.sh'. Then it will look like this again:
 
-	your_project/<br>
-	    |_ 02456_project_audioset_attention (this repository)<br>
+	your_project/
+	    |_ 02456_project_audioset_attention (this repository)
 
 
 
