@@ -5,30 +5,32 @@ import h5py
 import numpy as np
 
 #### Fast reduction, maybe it become unbalanced
-def reduce_dataset(path, filename, num_files=1000, save=True):
+def reduce_dataset(path, save_path, file_name, init_file=0, end_file=3000, save=True):
     print('\n\n---\n---')
-    data = dg.read_h5_files(path, [filename], True)
+    data = dg.read_h5_files(path, [file_name], True)
 
     print('\n---')
 
     if save:
-        f = h5py.File(filename, 'a') # read/create the file
+        file = save_path+file_name
+        f = h5py.File(file, 'a') # read/create the file
 
     for k in data.keys():
         print(k)
         for k1 in data[k].keys():
             print('  ',k1)
             if save:
-                f.create_dataset(k1, data=data[k][k1][0:num_files]) # selecting just the first 'num_files'
+                f.create_dataset(k1, data=data[k][k1][init_file:end_file]) # selecting just the first 'num_files'
 
 
 if __name__ == '__main__':
     path = '../packed_features/'
-    reduce_dataset(path, 'bal_train.h5', 3000)
-    reduce_dataset(path, 'eval.h5', 3000)
-    path = ''
-    reduce_dataset(path, 'bal_train.h5', 3000, False)
-    reduce_dataset(path, 'eval.h5', 3000, False)
+    save_path = 'test_data/recised_3000_6000/'
+    reduce_dataset(path, save_path, 'bal_train.h5', 3000, 6000)
+    reduce_dataset(path, save_path, 'eval.h5', 3000, 6000)
+    save_path = 'test_data/recised_0_6000/'
+    reduce_dataset(path, save_path, 'bal_train.h5', 0, 6000)
+    reduce_dataset(path, save_path, 'eval.h5', 0, 6000)
 
 
  
