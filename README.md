@@ -46,10 +46,10 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 ### Practical information
 
-*If at some point you need to <b>download the dataset<\b> again but the setup is already done you can just run the shell script 'data_generator.sh'*
+*If at some point you need to <b>download the dataset</b> again but the setup is already done you can just run the shell script 'data_generator.sh'*
 
 
-*If you want to <b>remove the folders<\b> created by during the setup you can just run the shell script 'remove_all.sh'. Then it will look like this again:*
+*If you want to <b>remove the folders</b> created by during the setup you can just run the shell script 'remove_all.sh'. Then it will look like this again:*
 
 	your_project/
 	    |_ 02456_project_audioset_attention (this repository)
