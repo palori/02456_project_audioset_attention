@@ -5,15 +5,17 @@
 
 
 # You need to modify the dataset path.
-# "/vol/vssp/msos/audioset/packed_features" 
-DATA_DIR="~/Documents/dtu/dl/02456_project_audioset/02456_project_audioset_attention"
+# "/vol/vssp/msos/audioset/packed_features"
+
+DATA_DIR="`pwd`/test_data/recised_0_3000"
+#DATA_DIR="`pwd`/../packed_features"
 
 # You can to modify to your own workspace. 
 # WORKSPACE=`pwd`
 # "/vol/vssp/msos/qk/workspaces/pub_audioset_classification"
-WORKSPACE="run_results_p"
+WORKSPACE="../audioset_results_temp"
 
-BACKEND="pytorch"     # 'pytorch' | 'keras'
+BACKEND="../audioset_classification/pytorch"     # 'pytorch' | 'keras'
 
 MODEL_TYPE="decision_level_single_attention"    # 'decision_level_max_pooling'
                                                 # | 'decision_level_average_pooling'
