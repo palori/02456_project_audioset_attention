@@ -128,6 +128,7 @@ def read_h5_files(path, files, print_info=False): # Still to modify
 		(x, y, video_id_list) = load_data(hdf5_path)
 		x = np.array(uint8_to_float32(x))     # shape: (N, 10, 128)
 		y = np.array(bool_to_float32(y))      # shape: (N, 527)
+		data[f]['video_id_list'] = video_id_list
 		video_id_list = np.array([str(v)[2:-1] for v in video_id_list], dtype='bytes') # take just the ID
 
 		# Save in a dict

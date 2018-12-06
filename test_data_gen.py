@@ -19,7 +19,7 @@ def reduce_dataset(path, filename, num_files=1000, save=True):
         for k1 in data[k].keys():
             print('  ',k1)
             if save:
-                f.create_dataset(k1, data=data[k][k1][0:num_files-1]) # selecting just the first 'num_files'
+                f.create_dataset(k1, data=data[k][k1][0:num_files]) # selecting just the first 'num_files'
 
 
 if __name__ == '__main__':
