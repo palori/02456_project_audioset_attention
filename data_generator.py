@@ -159,7 +159,10 @@ def print_audioset_shape(audioset_data):
 	for kf in audioset_data.keys():
 		print('  '+kf+':')
 		for k in audioset_data[kf].keys():
-			print('    '+k+':', audioset_data[kf][k].shape)
+			try:
+				print('    '+k+':', audioset_data[kf][k].shape)
+			except AttributeError:
+				print('    '+k+':', len(audioset_data[kf][k]))
 
 ##################
 ##################
@@ -169,6 +172,7 @@ def dataset_init(x_shape, y_shape):
 	return {'x': np.zeros(x_shape),
 			'y': np.zeros(y_shape),
 			'video_id': np.array(['0'], dtype='bytes'),
+			'video_id_list': np.array(['0'], dtype='bytes'), #@@@@
 			'onset': np.float32([0.0]),
 			'offset': np.float32([0.0]),
 			'event_label': np.array(['0'], dtype='bytes'),
@@ -241,20 +245,20 @@ def gen_data(dataset_file_name,
 	f = h5py.File(dataset_file_name, 'a') # read/create the file
 	file_exist = False
 	try:
-		filekeys = [k for k in f['grp'].keys()]
-		print('\n\nFile "'+dataset_file_name+'" exists')
-		print('\nfilekeys:',filekeys)
-		file_exist = True
+		filekeys = [k for k in f.keys()]
+		if (filekeys != []):
+			print('\n\nFile "'+dataset_file_name+'" exists')
+			print('\nfilekeys:',filekeys)
+			file_exist = True
 	except KeyError:
 		print('\n\nInexistant file "'+dataset_file_name+'"')
 
 	if file_exist: # file not empty, proceed to read it	
 		dataset = dataset_init((1, 10, 128), (1, 527)) #initialization with all needed keys
-		for k in f['grp'].keys():
+		for k in f.keys():
 			if k != 'a_event_label' and k != 'a_filename': # @@@@temporal, need to be fixed!!!
 				print('\n    ... loading '+k+'...', type(dataset[k][0]))
-				d = 'grp/'+k
-				a = f.get(d)
+				a = f.get(k)
 				if type(dataset[k][0]) != np.ndarray:
 					dataset[k] = np.array(a, dtype=type(dataset[k][0]))
 				else:
@@ -305,12 +309,11 @@ def gen_data(dataset_file_name,
 
 		# Last step: save in the 'h5' file
 		#### maybe put it in a function: save2h5(dataset)
-		grp = f.create_group('grp')
 		for k in dataset.keys():
 			print('\n  '+k+' type=', type(dataset[k][0]))
 			if k != 'event_label' and k != 'filename': # @@@@temporal, need to be fixed!!!
 				print('    ... saving '+k+'...')
-				grp.create_dataset(k, data=dataset[k])
+				f.create_dataset(k, data=dataset[k])
 	
 	#### END - SAVE IN 'H5' FILE ####
 	return dataset
