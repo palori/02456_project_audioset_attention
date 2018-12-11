@@ -14,7 +14,7 @@ def get_video_ids(data_list, print_info=False):
     return np.array([md[1:12] for md in data_list], dtype='bytes') # IMP! string type in 'bytes'
 
 
-def read_csv_files(path, files, print_info=False):
+def read_csv_files(path, files, print_info=False, extract_video_id=False):
     data = {}
     for f in files:
         file_name = path+f
@@ -27,7 +27,8 @@ def read_csv_files(path, files, print_info=False):
             else:
                 meta_data[k] = np.float32(meta_data[k])
 
-        meta_data['video_id'] = get_video_ids(data_list=meta_data['filename'])
+        if extract_video_id:
+            meta_data['video_id'] = get_video_ids(data_list=meta_data['filename'])
         data[f] = meta_data
         if print_info:
             print('\n*************************\n'+f)

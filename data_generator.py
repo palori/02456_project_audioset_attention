@@ -7,6 +7,7 @@ pd.options.display.max_columns = None
 pd.options.display.max_rows = None
 import os
 import h5py
+import math
 
 #### Get all files of this path
 def get_dir_files(path, just_filename=True, print_info=False):
@@ -24,11 +25,11 @@ def get_dir_files(path, just_filename=True, print_info=False):
 
 
 #### Read all files. For each file, maybe print its: name, header and shape
-def read_csv_files(path, files, print_info=False):
+def read_csv_files(path, files, delimiter='\t', header=0, print_info=False, extract_video_id=False): # @@@@ new arguments
 	data = {}
 	for f in files:
 		file_name = path+f
-		meta_data = pd.read_csv(file_name,delimiter='\t',header=0)
+		meta_data = pd.read_csv(file_name,delimiter=delimiter,header=header)
 
 		# Convert to numpy arrays and strings must be 'bytes'
 		for k in meta_data.keys():
@@ -37,13 +38,15 @@ def read_csv_files(path, files, print_info=False):
 			else:
 				meta_data[k] = np.float32(meta_data[k])
 
-		meta_data['video_id'] = get_video_ids(data_list=meta_data['filename'])
+		if extract_video_id:
+			meta_data['video_id'] = get_video_ids(data_list=meta_data['filename'])
+		
 		data[f] = meta_data
 		if print_info:
 			print('\n*************************\n'+f)
 			print(meta_data.head())
 			print(meta_data.shape)
-	return data
+	return data, meta_data
 		
 
 #### Add a column with the video ID's in a np.array for each file
@@ -111,7 +114,7 @@ def bool_to_float32(y):
 	return np.float32(y)
 
 #### Read all 'h5' files
-def read_h5_files(path, files, print_info=False): # Still to modify
+def read_h5_files(path, files, print_info=False):
 	#initialization of outputs
 	data = {}
 	# pd_data = pd.DataFrame()
@@ -166,6 +169,110 @@ def print_audioset_shape(audioset_data):
 
 ##################
 ##################
+
+
+def reduce_output_size(audioset_data, new_output_classes):
+	m = new_output_classes
+
+	#print(m.isnull().any().any())
+	#print("m before drop: ",len(m.index))
+	#m = m.dropna()
+	#print("m after drop: ",len(m.index))
+
+	index2drop = []
+	#print("    q= ",m.iloc[37]['dcase_label'] )
+	for i in range(0,len(m.index)):
+		if m.iloc[i]['dcase_label'] == b'nan':#float('nan'):
+			# save index
+			#m.drop(m.index[i])
+			index2drop.append(i)
+	#print("indexes: ", index2drop)
+	#m.drop(m.index[index2drop])
+	m.drop(index2drop, axis=0, inplace=True)
+	#print("m after drop: ",len(m.index))
+	#print(m.head(66))
+
+	print(m.head(66))
+
+	for fa in audioset_data.keys(): # files
+		real_in = audioset_data[fa]['x']
+		real_out = audioset_data[fa]['y']
+		real_ids = audioset_data[fa]['video_id']
+
+		#reshape output
+		mapping = np.zeros((10,527)) # initialization
+		for mm in range(0,len(m.index)):
+			print("    row: ", m.iloc[mm])
+			print("    row['index']:", m.iloc[mm]['index'])
+			col = m.iloc[mm]['index']
+			if m.iloc[mm]['dcase_label'] == "Alarm_bell_ringing":
+				row = 0
+			elif m.iloc[mm]['dcase_label'] == "Blender":
+				row = 1
+			elif m.iloc[mm]['dcase_label'] == "Cat":
+				row = 2
+			elif m.iloc[mm]['dcase_label'] == "Dishes":
+				row = 3
+			elif m.iloc[mm]['dcase_label'] == "Dog":
+				row = 4
+			elif m.iloc[mm]['dcase_label'] == "Electric_shaver_toothbrush":
+				row = 5
+			elif m.iloc[mm]['dcase_label'] == "Frying":
+				row = 6
+			elif m.iloc[mm]['dcase_label'] == "Running_water":
+				row = 7
+			elif m.iloc[mm]['dcase_label'] == "Speech":
+				row = 8
+			elif m.iloc[mm]['dcase_label'] == "Vacuum_cleaner":
+				row = 9
+			else:
+				print("\n    Error, no DCASE label fot that index!\n")
+			mapping[row,col] = 1
+
+		print("Mapping matrix=\n",mapping)
+			
+		
+
+		for k in range(0,20):#real_out.shape[0]):
+			cmd=0
+
+			for l in range(0,real_out.shape[1]):
+				for j in range(0,len(m.index)):
+					if l == m.iloc[j]['index'] and real_out[k,l] == 1:
+						print()
+						cmd = 1
+						break
+				if cmd == 1:
+					break
+			if cmd == 0:
+
+				real_in = np.delete(real_in,k,0)
+				real_out = np.delete(real_out,k,0)
+				real_ids = np.delete(real_ids,k,0)
+				print("Iteration ",k)
+				print("    new_in: ", real_in.shape)
+				print("    new_out: ", real_out.shape)
+				print("    new_ids: ", real_ids.shape)
+
+
+		print(new_out.shape)
+		
+		
+
+
+
+		"""
+		for c in range(0,len(real_ids)): # clips
+			for i in range (0, 527):
+				if real_out[c,i]
+				np.delete(arr, range(1,528), 0)
+		"""
+
+
+
+##################
+##################
+
 
 #### Dataset 0-initialization
 def dataset_init(x_shape, y_shape):
@@ -224,15 +331,43 @@ def concatenate_matches(dcase_str_lab_data, audioset_data):
 ###################
 ###################
 
-def create_strong_output(dataset):
-	num_clips = dataset['onset'].shape[0]
-	num_seconds = 10 # with a resolution of 1s
-	dataset['ys'] = np.zeros([num_clips, num_seconds])
-	return dataset
+def create_strong_output(path, file, print_info=False):
+
+    data, meta_data = read_csv_files(path, files, print_info=False)
+    meta_data = meta_data.dropna()
+    label = meta_data.drop_duplicates('event_label')
+    ids = meta_data.drop_duplicates('video_id')
+    label = label.sort_values(by=['event_label'])
+    print(meta_data.head())
+    for i in range(0,len(meta_data.index)):
+        meta_data.at[i,'onset'] = int(meta_data.iloc[i]['onset'])
+        meta_data.at[i,'offset'] =  round(meta_data.iloc[i]['offset'])
+    
+    T = 10
+    out = np.zeros((len(ids.index),T,len(label.index)))
+    labelv=label.values[:,[3]]
+    idsv = ids.values[:,[4]]
+    print(meta_data.head())
+    for i in range(0,len(ids.index)):
+        for k in range(0,len(meta_data.index)):
+            if idsv[i] == meta_data.iloc[k]['video_id']:
+                for l in range(0,len(label.index)):
+                    if labelv[l] == meta_data.iloc[k]['event_label']:
+                        for t in range(int(meta_data.iloc[k]['onset']),int(meta_data.iloc[k]['offset'])):
+                            out[i,t,l]= 1
+                            
+                            
+    if print_info:
+    	print(out[0,:,4])
+    return idsv, out
 
 
-def save2h5(dataset):
-	pass
+def save2h5(f, dataset):
+	for k in dataset.keys():
+		print('\n  '+k+' type=', type(dataset[k][0]))
+		if k != 'event_label' and k != 'filename': # @@@@temporal, need to be fixed!!!
+			print('    ... saving '+k+'...')
+			f.create_dataset(k, data=dataset[k])
 
 ###################
 ###################
@@ -273,7 +408,7 @@ def gen_data(dataset_file_name,
 		dcase_files = get_dir_files(path=dcase_path, just_filename=False)
 
 		# Read data and add column with video_id from video name
-		dcase_data = read_csv_files(path=dcase_path, files=dcase_files, print_info=True)
+		dcase_data, a = read_csv_files(path=dcase_path, files=dcase_files, delimiter='\t', header=0, print_info=True, extract_video_id=True)
 		
 		# get only strongly labeled data in a dict
 		dcase_str_lab_data = get_strongly_labeled(data=dcase_data, print_info=True)
@@ -283,10 +418,32 @@ def gen_data(dataset_file_name,
 		#### START - GET AUDIOSET DATA ####
 		audioset_files = get_dir_files(path=audioset_path, just_filename=True, print_info=False)
 		# Keep just the ones with extension .h5 and NOT unbalanced data!
-		audioset_files = [f for f in audioset_files if (f.split('.')[-1] == 'h5') and (f.split('_')[0] != 'unbal')] #@@@@ modify if we want the strong from the unbalanced too
+		audioset_files = [fi for fi in audioset_files if (fi.split('.')[-1] == 'h5') and (fi.split('_')[0] != 'unbal')] #@@@@ modify if we want the strong from the unbalanced too
 
-		audioset_data = read_h5_files(path=audioset_path, files=audioset_files, print_info=True) # Still to modify
+		# Get 'bal_tain' and 'eval' in the same dict
+		audioset_data = read_h5_files(path=audioset_path, files=audioset_files, print_info=True)
 		#### END - GET AUDIOSET DATA ####
+
+
+
+		#### START - CREATE STRONG OUTPUT #### @@@@
+		dcase_data
+		#### END - CREATE STRONG OUTPUT ####
+
+
+
+		#### START - REDUCE OUTPUT SIZE #### @@@@
+		p = '../02456_project_audioset_attention/'
+		project_files = get_dir_files(path=p, just_filename=True, print_info=False)
+		
+		# Keep just the ones with extension .csv
+		project_files = [fi for fi in project_files if (fi.split('.')[-1] == 'csv')]
+
+		a, new_output_classes = read_csv_files(path=p, files=[project_files[0]], delimiter=',', header=0, print_info=True, extract_video_id=False)
+		print('\n\n----------------------------')
+		print_dict_shape(dict_data=new_output_classes, title='Mapping')
+		reduce_output_size(audioset_data, new_output_classes)
+		#### END - REDUCE OUTPUT SIZE ####
 
 
 
@@ -303,17 +460,21 @@ def gen_data(dataset_file_name,
 
 		#### START - CREATE STRONGLY OUTPUT (ys) ####
 
-		dataset = create_strong_output(dataset) # @@@@ work in progress, still need to change plenty of things
+		# @@@@ CHANGE THIS FUNCTION FOR ADEX'S CODE!!!
+		path = '../dcase2018_baseline/task4/dataset/metadata/test/'
+		files = ['test.csv']
+		test_idvs, test_out = create_strong_output(path, files) 
+
+		path = '../dcase2018_baseline/task4/dataset/metadata/eval/'
+		files = ['eval.csv']
+		eval_idvs, eval_out = create_strong_output(path, files) 
+
+		# @@@@ juntarlo !
 		#### END - CREATE STRONGLY OUTPUT (ys) ####
 
 
 		# Last step: save in the 'h5' file
-		#### maybe put it in a function: save2h5(dataset)
-		for k in dataset.keys():
-			print('\n  '+k+' type=', type(dataset[k][0]))
-			if k != 'event_label' and k != 'filename': # @@@@temporal, need to be fixed!!!
-				print('    ... saving '+k+'...')
-				f.create_dataset(k, data=dataset[k])
+		save2h5(f, dataset)
 	
 	#### END - SAVE IN 'H5' FILE ####
 	return dataset

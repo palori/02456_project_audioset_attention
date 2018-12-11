@@ -1,11 +1,11 @@
 index,dcase_label
 0,Alarm_bell_ringing
-1,Dog
+1,Blender
 2,Cat
-3,Speech
-4,Running_water
-5,Dishes
+3,Dishes
+4,Dog
+5,Electric_shaver_toothbrush
 6,Frying
-7,Blender
-8,Electric_shaver_toothbrush
+7,Running_water
+8,Speech
 9,Vacuum_cleaner
