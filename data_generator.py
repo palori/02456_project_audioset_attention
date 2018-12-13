@@ -238,7 +238,7 @@ def reduce_output_size(audioset_data, new_output_classes):
 		
 
 		count = 0
-		for k in range(0,20):#real_out.shape[0]):
+		for k in range(real_out.shape[0]):
 			cmd=0
 			out10 = np.matmul(mapping,np.transpose(real_out[k])) # new output
 			#out10 = np.transpose(out10)
@@ -467,7 +467,12 @@ def gen_data(dataset_file_name,
 
 		path = '../dcase2018_baseline/task4/dataset/metadata/eval/'
 		files = ['eval.csv']
-		eval_idvs, eval_out = create_strong_output(path, files) 
+		eval_idvs, eval_out = create_strong_output(path, files)
+
+		# concatenate and store in dict
+		strong_out = {}
+		strong_out['ys'] = np.concatenate((test_out, eval_out),axis=0)
+		strong_out['video_id'] = np.concatenate((test_idvs, eval_idvs),axis=0)
 
 		# @@@@ juntarlo !
 		#### END - CREATE STRONGLY OUTPUT (ys) ####
@@ -482,6 +487,13 @@ def gen_data(dataset_file_name,
 			print("\n\n  Save for training/testing - ",fn,':\n')
 			save2h5(fx, audioset_data[fn])
 
+		# save strong out
+		file_strong_out = 'strong_out.h5'
+		pn = 'data/'+file_strong_out
+		fx = h5py.File(pn, 'a') # read/create the file
+		print("\n\n  Save for training/testing - ",file_strong_out,':\n')
+		save2h5(fx, strong_out)
+
 		# general dataset (old)
 		save2h5(f, dataset)
 	
@@ -489,6 +501,9 @@ def gen_data(dataset_file_name,
 	return dataset
 
 if __name__ == '__main__':
+
+	fff = h5py.File('data/hola.h5', 'a') # read/create the file
+
 	dataset_file_name = 'file_name_to_save_data.h5'
 	dcase_path = '../dcase2018_baseline/task4/dataset/metadata/'
 	audioset_path = '../packed_features/'
