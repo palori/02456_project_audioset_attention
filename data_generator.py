@@ -238,7 +238,7 @@ def reduce_output_size(audioset_data, new_output_classes):
 		
 
 		count = 0
-		for k in range(real_out.shape[0]):
+		for k in range(0,real_out.shape[0]):
 			cmd=0
 			out10 = np.matmul(mapping,np.transpose(real_out[k])) # new output
 			#out10 = np.transpose(out10)
@@ -249,23 +249,33 @@ def reduce_output_size(audioset_data, new_output_classes):
 					new_in = np.concatenate((new_in, [real_in[k]]),axis=0)
 					new_out = np.concatenate((new_out, [out10]),axis=0)
 					new_ids = np.append(new_ids, real_ids[k])
+					if (False):
+						print("\n---- new_in:",new_in)
+						print("\n---- new_out:",new_out)
+						print("\n---- new_ids:",new_ids)
 					if count < 1:
-						new_in = np.delete(new_in,k,0)
-						new_out = np.delete(new_out,k,0)
-						new_ids = np.delete(new_ids,k,0)
+						new_in = np.delete(new_in,0,0)
+						new_out = np.delete(new_out,0,0)
+						new_ids = np.delete(new_ids,0,0)
 						count = 10
+						if (False):
+							print("\n-**- new_in:",new_in)
+							print("\n-**- new_out:",new_out)
+							print("\n-**- new_ids:",new_ids)
 
-					print("Iteration ",k)
+					print("\nIteration ",k)
 					print("    new_in: ", new_in.shape)
 					print("    new_out: ", new_out.shape)
 					print("    new_ids: ", new_ids.shape)
+					#print("        out: ", out10)
 					break
+
 
 		#print(new_out.shape)
 		new_data[fa]['x'] = new_in
 		new_data[fa]['y'] = new_out
 		new_data[fa]['video_id'] = new_ids
-
+		print_audioset_shape(new_data)
 		
 	return new_data
 
@@ -461,6 +471,7 @@ def gen_data(dataset_file_name,
 		#### START - CREATE STRONGLY OUTPUT (ys) ####
 
 		# @@@@ CHANGE THIS FUNCTION FOR ADEX'S CODE!!!
+		"""
 		path = '../dcase2018_baseline/task4/dataset/metadata/test/'
 		files = ['test.csv']
 		test_idvs, test_out = create_strong_output(path, files) 
@@ -473,8 +484,7 @@ def gen_data(dataset_file_name,
 		strong_out = {}
 		strong_out['ys'] = np.concatenate((test_out, eval_out),axis=0)
 		strong_out['video_id'] = np.concatenate((test_idvs, eval_idvs),axis=0)
-
-		# @@@@ juntarlo !
+		"""
 		#### END - CREATE STRONGLY OUTPUT (ys) ####
 
 
@@ -488,12 +498,13 @@ def gen_data(dataset_file_name,
 			save2h5(fx, audioset_data[fn])
 
 		# save strong out
+		"""
 		file_strong_out = 'strong_out.h5'
 		pn = 'data/'+file_strong_out
 		fx = h5py.File(pn, 'a') # read/create the file
 		print("\n\n  Save for training/testing - ",file_strong_out,':\n')
 		save2h5(fx, strong_out)
-
+		"""
 		# general dataset (old)
 		save2h5(f, dataset)
 	
@@ -501,8 +512,6 @@ def gen_data(dataset_file_name,
 	return dataset
 
 if __name__ == '__main__':
-
-	fff = h5py.File('data/hola.h5', 'a') # read/create the file
 
 	dataset_file_name = 'file_name_to_save_data.h5'
 	dcase_path = '../dcase2018_baseline/task4/dataset/metadata/'
