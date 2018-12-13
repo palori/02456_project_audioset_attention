@@ -174,99 +174,100 @@ def print_audioset_shape(audioset_data):
 def reduce_output_size(audioset_data, new_output_classes):
 	m = new_output_classes
 
-	#print(m.isnull().any().any())
-	#print("m before drop: ",len(m.index))
-	#m = m.dropna()
-	#print("m after drop: ",len(m.index))
+	new_data = {}
 
 	index2drop = []
 	#print("    q= ",m.iloc[37]['dcase_label'] )
 	for i in range(0,len(m.index)):
 		if m.iloc[i]['dcase_label'] == b'nan':#float('nan'):
-			# save index
-			#m.drop(m.index[i])
-			index2drop.append(i)
-	#print("indexes: ", index2drop)
-	#m.drop(m.index[index2drop])
-	m.drop(index2drop, axis=0, inplace=True)
-	#print("m after drop: ",len(m.index))
-	#print(m.head(66))
 
-	print(m.head(66))
+			index2drop.append(i)
+
+	m.drop(index2drop, axis=0, inplace=True)
+
+	# print(m.head(66))
 
 	for fa in audioset_data.keys(): # files
 		real_in = audioset_data[fa]['x']
 		real_out = audioset_data[fa]['y']
 		real_ids = audioset_data[fa]['video_id']
 
-		#reshape output
+		new_data[fa] = {}
+
+		#reshape output form 527 to 10
 		mapping = np.zeros((10,527)) # initialization
 		for mm in range(0,len(m.index)):
-			print("    row: ", m.iloc[mm])
-			print("    row['index']:", m.iloc[mm]['index'])
-			col = m.iloc[mm]['index']
-			if m.iloc[mm]['dcase_label'] == "Alarm_bell_ringing":
-				row = 0
-			elif m.iloc[mm]['dcase_label'] == "Blender":
-				row = 1
-			elif m.iloc[mm]['dcase_label'] == "Cat":
-				row = 2
-			elif m.iloc[mm]['dcase_label'] == "Dishes":
-				row = 3
-			elif m.iloc[mm]['dcase_label'] == "Dog":
-				row = 4
-			elif m.iloc[mm]['dcase_label'] == "Electric_shaver_toothbrush":
-				row = 5
-			elif m.iloc[mm]['dcase_label'] == "Frying":
-				row = 6
-			elif m.iloc[mm]['dcase_label'] == "Running_water":
-				row = 7
-			elif m.iloc[mm]['dcase_label'] == "Speech":
-				row = 8
-			elif m.iloc[mm]['dcase_label'] == "Vacuum_cleaner":
-				row = 9
-			else:
-				print("\n    Error, no DCASE label fot that index!\n")
-			mapping[row,col] = 1
+			#print("    row['index']:", m.iloc[mm]['index'])
+			col = int(m.iloc[mm]['index'])
+			dc_labels = str(m.iloc[mm]['dcase_label']).split(',')
 
-		print("Mapping matrix=\n",mapping)
-			
+			for dcl in dc_labels:
+				row = -1
+				#print("    dcl: ",dcl, ", type: ", type(dcl))
+				if dcl == "b'Alarm_bell_ringing'":
+					row = 0
+				elif dcl == "b'Blender'":
+					row = 1
+				elif dcl == "b'Cat'":
+					row = 2
+				elif dcl == "b'Dishes'":
+					row = 3
+				elif dcl == "b'Dog'":
+					row = 4
+				elif dcl == "b'Electric_shaver_toothbrush'":
+					row = 5
+				elif dcl == "b'Frying'":
+					row = 6
+				elif dcl == "b'Running_water'":
+					row = 7
+				elif dcl == "b'Speech'":
+					row = 8
+				elif dcl == "b'Vacuum_cleaner'":
+					row = 9
+				else:
+					print("\n    Error, no DCASE label fot that index!\n")
+				if row > -1:
+					mapping[row,col] = 1
+
+		#print("Mapping matrix=\n",mapping)
+		
+		
+		new_in = np.empty((1,10,128))
+		new_out = np.empty((1,10))
+		new_ids = np.empty((1))
 		
 
+		count = 0
 		for k in range(0,20):#real_out.shape[0]):
 			cmd=0
+			out10 = np.matmul(mapping,np.transpose(real_out[k])) # new output
+			#out10 = np.transpose(out10)
+			#print("    out shape: ",out10.shape)
 
-			for l in range(0,real_out.shape[1]):
-				for j in range(0,len(m.index)):
-					if l == m.iloc[j]['index'] and real_out[k,l] == 1:
-						print()
-						cmd = 1
-						break
-				if cmd == 1:
+			for out in out10:
+				if out == 1:
+					new_in = np.concatenate((new_in, [real_in[k]]),axis=0)
+					new_out = np.concatenate((new_out, [out10]),axis=0)
+					new_ids = np.append(new_ids, real_ids[k])
+					if count < 1:
+						new_in = np.delete(new_in,k,0)
+						new_out = np.delete(new_out,k,0)
+						new_ids = np.delete(new_ids,k,0)
+						count = 10
+
+					print("Iteration ",k)
+					print("    new_in: ", new_in.shape)
+					print("    new_out: ", new_out.shape)
+					print("    new_ids: ", new_ids.shape)
 					break
-			if cmd == 0:
 
-				real_in = np.delete(real_in,k,0)
-				real_out = np.delete(real_out,k,0)
-				real_ids = np.delete(real_ids,k,0)
-				print("Iteration ",k)
-				print("    new_in: ", real_in.shape)
-				print("    new_out: ", real_out.shape)
-				print("    new_ids: ", real_ids.shape)
+		#print(new_out.shape)
+		new_data[fa]['x'] = new_in
+		new_data[fa]['y'] = new_out
+		new_data[fa]['video_id'] = new_ids
 
-
-		print(new_out.shape)
 		
-		
-
-
-
-		"""
-		for c in range(0,len(real_ids)): # clips
-			for i in range (0, 527):
-				if real_out[c,i]
-				np.delete(arr, range(1,528), 0)
-		"""
+	return new_data
 
 
 
@@ -332,8 +333,7 @@ def concatenate_matches(dcase_str_lab_data, audioset_data):
 ###################
 
 def create_strong_output(path, file, print_info=False):
-
-    data, meta_data = read_csv_files(path, files, print_info=False)
+    data, meta_data = read_csv_files(path, file, delimiter='\t', header=0, print_info=False, extract_video_id=True)
     meta_data = meta_data.dropna()
     label = meta_data.drop_duplicates('event_label')
     ids = meta_data.drop_duplicates('video_id')
@@ -442,7 +442,7 @@ def gen_data(dataset_file_name,
 		a, new_output_classes = read_csv_files(path=p, files=[project_files[0]], delimiter=',', header=0, print_info=True, extract_video_id=False)
 		print('\n\n----------------------------')
 		print_dict_shape(dict_data=new_output_classes, title='Mapping')
-		reduce_output_size(audioset_data, new_output_classes)
+		audioset_data = reduce_output_size(audioset_data, new_output_classes)
 		#### END - REDUCE OUTPUT SIZE ####
 
 
@@ -474,6 +474,15 @@ def gen_data(dataset_file_name,
 
 
 		# Last step: save in the 'h5' file
+
+		# save train/test data
+		for fn in audioset_data.keys():
+			pn = 'data/'+fn
+			fx = h5py.File(pn, 'a') # read/create the file
+			print("\n\n  Save for training/testing - ",fn,':\n')
+			save2h5(fx, audioset_data[fn])
+
+		# general dataset (old)
 		save2h5(f, dataset)
 	
 	#### END - SAVE IN 'H5' FILE ####
