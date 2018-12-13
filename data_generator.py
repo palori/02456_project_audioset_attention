@@ -291,15 +291,17 @@ def dataset_init(x_shape, y_shape):
 	return {'x': np.zeros(x_shape),
 			'y': np.zeros(y_shape),
 			'video_id': np.array(['0'], dtype='bytes'),
-			'video_id_list': np.array(['0'], dtype='bytes'), #@@@@
-			'onset': np.float32([0.0]),
-			'offset': np.float32([0.0]),
-			'event_label': np.array(['0'], dtype='bytes'),
-			'filename': np.array(['0'], dtype='bytes')}
+			#'video_id_list': np.array(['0'], dtype='bytes'), #@@@@
+			#'onset': np.float32([0.0]),
+			#'offset': np.float32([0.0]),
+			#'event_label': np.array(['0'], dtype='bytes'),
+			#'filename': np.array(['0'], dtype='bytes')
+			}
 
 #### Find matches with 'video_id' and return the concatenation of them
 def concatenate_matches(dcase_str_lab_data, audioset_data):
 	# initialization
+	"""
 	try:
 		x_shape = audioset_data['bal_train.h5']['x'][0:1].shape
 		y_shape = audioset_data['bal_train.h5']['y'][0:1].shape
@@ -309,11 +311,21 @@ def concatenate_matches(dcase_str_lab_data, audioset_data):
 			y_shape = audioset_data['eval.h5']['y'][0:1].shape
 		except KeyError:
 			print("    KeyError!!!")
+	"""
+	x_shape = audioset_data['eval.h5']['x'][0:1].shape
+	y_shape = dcase_str_lab_data['y'][0:1].shape
+	print("\n    concatenate:\n      X shape: ", x_shape, "\n      Y shape: ",y_shape)
+
 	dataset = dataset_init(x_shape, y_shape)
+	print_audioset_shape(audioset_data)
+	print_dict_shape(dcase_str_lab_data, "DCASE strong!")
+	print_dict_shape(dataset, "Dataset!")
+
 			   
 	#print('\n\nDataset', dataset) # 0-initialization
 	
 	d_index = -1 # counter for dcase to be able to concatenate when match
+	count = 0
 	for id_d in dcase_str_lab_data['video_id']: # ids DCASE
 		found = False
 		d_index = d_index + 1 
@@ -327,13 +339,20 @@ def concatenate_matches(dcase_str_lab_data, audioset_data):
 					found = True
 					# Concatenate values
 					#             from AudioSet
+					"""
 					for k in audioset_data[ka].keys():
 						dataset[k] = np.concatenate((dataset[k], audioset_data[ka][k][a_index:a_index+1]))	
+					"""
 					#             from DCASE
 					for k in dcase_str_lab_data.keys():
-						if k != 'video_id':
-							dataset[k] = np.concatenate((dataset[k], dcase_str_lab_data[k][d_index:d_index+1]))
-
+						#if k != 'video_id':
+						dataset[k] = np.concatenate((dataset[k], dcase_str_lab_data[k][d_index:d_index+1]))
+					dataset['x'] = np.concatenate((dataset['x'], audioset_data[ka]['x'][a_index:a_index+1]))	
+					
+					if count<1:
+						for kk in dataset.keys(): # delete first row
+							dataset[kkk] = np.delete(dataset[kk],0,0)
+						count = 10
 					break
 			if found:
 				break
@@ -437,12 +456,6 @@ def gen_data(dataset_file_name,
 
 
 
-		#### START - CREATE STRONG OUTPUT #### @@@@
-		dcase_data
-		#### END - CREATE STRONG OUTPUT ####
-
-
-
 		#### START - REDUCE OUTPUT SIZE #### @@@@
 		p = '../02456_project_audioset_attention/'
 		project_files = get_dir_files(path=p, just_filename=True, print_info=False)
@@ -458,21 +471,11 @@ def gen_data(dataset_file_name,
 
 
 
-		#### START - SELECTING STRONGLY LABELED DATA ####
-		print('\n\n----------------------------')
-		print_dict_shape(dict_data=dcase_str_lab_data, title='DCASE data shape')
-		print_audioset_shape(audioset_data)
-		print('\n\n----------------------------')
-		dataset = concatenate_matches(dcase_str_lab_data, audioset_data)
-		print('\nMatches: ', len(dataset['video_id']), '/', len(dcase_str_lab_data['video_id']))
-		print_dict_shape(dict_data=dataset, title='dataset shape')
-		#### END - SELECTING STRONGLY LABELED DATA ####
 
 
 		#### START - CREATE STRONGLY OUTPUT (ys) ####
 
 		# @@@@ CHANGE THIS FUNCTION FOR ADEX'S CODE!!!
-		"""
 		path = '../dcase2018_baseline/task4/dataset/metadata/test/'
 		files = ['test.csv']
 		test_idvs, test_out = create_strong_output(path, files) 
@@ -483,10 +486,23 @@ def gen_data(dataset_file_name,
 
 		# concatenate and store in dict
 		strong_out = {}
-		strong_out['ys'] = np.concatenate((test_out, eval_out),axis=0)
-		strong_out['video_id'] = np.concatenate((test_idvs, eval_idvs),axis=0)
-		"""
+		strong_out['y'] = np.concatenate((test_out, eval_out),axis=0)
+		strong_out['video_id'] = np.ravel(np.concatenate((test_idvs, eval_idvs),axis=0)) #concat and from matrix to array
 		#### END - CREATE STRONGLY OUTPUT (ys) ####
+
+
+
+		#### START - SELECTING STRONGLY LABELED DATA ####
+		print('\n\n----------------------------')
+		print_dict_shape(dict_data=dcase_str_lab_data, title='DCASE data shape')
+		print_audioset_shape(audioset_data)
+		print('\n\n----------------------------')
+		dataset = concatenate_matches(strong_out, audioset_data)
+		print('\nMatches: ', len(dataset['video_id']), '/', len(dcase_str_lab_data['video_id']))
+		print_dict_shape(dict_data=dataset, title='dataset shape')
+
+		strong_out['x'] = dataset['x']
+		#### END - SELECTING STRONGLY LABELED DATA ####
 
 
 		# Last step: save in the 'h5' file
@@ -499,13 +515,13 @@ def gen_data(dataset_file_name,
 			save2h5(fx, audioset_data[fn])
 
 		# save strong out
-		"""
-		file_strong_out = 'strong_out.h5'
+		
+		file_strong_out = 'eval1.h5'
 		pn = 'data/'+file_strong_out
 		fx = h5py.File(pn, 'a') # read/create the file
 		print("\n\n  Save for training/testing - ",file_strong_out,':\n')
 		save2h5(fx, strong_out)
-		"""
+		
 		# general dataset (old)
 		#save2h5(f, dataset)
 	
