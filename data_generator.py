@@ -241,6 +241,7 @@ def reduce_output_size(audioset_data, new_output_classes):
 		for k in range(0,real_out.shape[0]):
 			cmd=0
 			out10 = np.matmul(mapping,np.transpose(real_out[k])) # new output
+			out10 = np.clip(out10,0,1, out=out10) # limit the values to [0,1]
 			#out10 = np.transpose(out10)
 			#print("    out shape: ",out10.shape)
 
@@ -269,7 +270,7 @@ def reduce_output_size(audioset_data, new_output_classes):
 					print("    new_ids: ", new_ids.shape)
 					#print("        out: ", out10)
 					break
-
+				#print("++++    out: ", out10)
 
 		#print(new_out.shape)
 		new_data[fa]['x'] = new_in
@@ -506,7 +507,7 @@ def gen_data(dataset_file_name,
 		save2h5(fx, strong_out)
 		"""
 		# general dataset (old)
-		save2h5(f, dataset)
+		#save2h5(f, dataset)
 	
 	#### END - SAVE IN 'H5' FILE ####
 	return dataset
