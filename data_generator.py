@@ -344,14 +344,17 @@ def concatenate_matches(dcase_str_lab_data, audioset_data):
 						dataset[k] = np.concatenate((dataset[k], audioset_data[ka][k][a_index:a_index+1]))	
 					"""
 					#             from DCASE
+					for k in audioset_data[ka].keys():
+						if k != 'y':
+							dataset[k] = np.concatenate((dataset[k], audioset_data[ka][k][a_index:a_index+1]))
 					for k in dcase_str_lab_data.keys():
-						#if k != 'video_id':
-						dataset[k] = np.concatenate((dataset[k], dcase_str_lab_data[k][d_index:d_index+1]))
-					dataset['x'] = np.concatenate((dataset['x'], audioset_data[ka]['x'][a_index:a_index+1]))	
+						if k != 'video_id':
+							dataset[k] = np.concatenate((dataset[k], dcase_str_lab_data[k][d_index:d_index+1]))
+						
 					
 					if count<1:
 						for kk in dataset.keys(): # delete first row
-							dataset[kkk] = np.delete(dataset[kk],0,0)
+							dataset[kk] = np.delete(dataset[kk],0,0)
 						count = 10
 					break
 			if found:
@@ -501,7 +504,7 @@ def gen_data(dataset_file_name,
 		print('\nMatches: ', len(dataset['video_id']), '/', len(dcase_str_lab_data['video_id']))
 		print_dict_shape(dict_data=dataset, title='dataset shape')
 
-		strong_out['x'] = dataset['x']
+		strong_out = dataset
 		#### END - SELECTING STRONGLY LABELED DATA ####
 
 
