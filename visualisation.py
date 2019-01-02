@@ -9,12 +9,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
-def barchart(stats, target, figure_name, fig=None, ax1=None, ax2=None, label='change', init=False):
+def barchart(stats, target, figure_name, fig=None, ax1=None, ax2=None, label='change', init=False, freq=False, time_ax=False):
 	"""Random chance to be included inside 
+
+	time_ax = True  -> time in X-axes
+	        = False -> classes in X-axes
 	"""
 	print(stats)
-	classes = ('Speech', 'Dog', 'Cat', 'Alarm', 'Dishes', 'Frying', 'Blender', 'Running\nwater', 'Vacuum\ncleaner', 'Tooth-\nbrush')
-	#classes = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
+	if time_ax:
+		classes = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
+	else:
+		classes = ('Speech', 'Dog', 'Cat', 'Alarm', 'Dishes', 'Frying', 'Blender', 'Running\nwater', 'Vacuum\ncleaner', 'Tooth-\nbrush')
+	print('classes:',classes)
+
 	y_pos = np.arange(len(classes))
 	auc = stats['auc']
 	ap = stats['AP']
@@ -30,6 +37,11 @@ def barchart(stats, target, figure_name, fig=None, ax1=None, ax2=None, label='ch
 	a0 = np.array([a0[i] for i in indexes])
 	a1 = np.array([a1[i] for i in indexes])
 
+	if time_ax:
+		a = a0
+		a0 = a1
+		a1 = a
+
 	ap0 = np.mean(ap, axis=0)
 	ap1 = np.mean(ap, axis=1)
 	ap0 = np.array([ap0[i] for i in indexes])
@@ -41,14 +53,17 @@ def barchart(stats, target, figure_name, fig=None, ax1=None, ax2=None, label='ch
 		ax1 = fig.subplots()
 		ax2 = ax1.twinx()
 	
-	
-		ax1.bar(y_pos, frequency, align='center', alpha=0.5, color='lightsteelblue')#'paleturquoise')
-		#plt.yticks(y_pos, classes)
-		ax1.set_ylabel('Frequency', color='b')
-		ax1.tick_params('y', colors='b')
-		#ax1.set_xlabel('Classes')
-		tick_marks = np.arange(len(classes))
-		plt.xticks(tick_marks, classes, rotation=45)
+		if freq:
+			ax1.bar(y_pos, frequency, align='center', alpha=0.5, color='lightsteelblue')#'paleturquoise')
+			#plt.yticks(y_pos, classes)
+			ax1.set_ylabel('Frequency', color='b')
+			ax1.tick_params('y', colors='b')
+			#ax1.set_xlabel('Classes')
+			tick_marks = np.arange(len(classes))
+			plt.xticks(tick_marks, classes, rotation=45)
+		else:
+			plt.xticks(y_pos, classes)
+			ax1.set_xlabel('Time [seconds]')
 
 	# Roc
 	#ax2.plot(ap0, '--r*')
@@ -264,7 +279,7 @@ def normalization(data):
 	print('data22: ', data)
 	return data
 
-def test_real_data():
+def test_real_data(time_ax=False, figure_name='foo2.png'):
 	'''
 	file2test:
 	  0 ground truth
@@ -289,7 +304,7 @@ def test_real_data():
 	stats = calculate_stats(data['output'], data['target'], th)
 	data['target'] = data['target'].transpose(0,2,1)
 	
-	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='foo2.png', fig, ax1, ax2, label='Single attention', init=True)
+	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='foo2.png', fig, ax1, ax2, label='Single attention', init=True, freq=False, time_ax=time_ax)
 	
 	
 	print('\n\n-------------------\n2')
@@ -309,7 +324,10 @@ def test_real_data():
 			'output': b2}
 	#data = normalization(data)
 	stats = calculate_stats(data['output'], data['target'], th)
-	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='figures/avg_pool.png', fig, ax1, ax2, 'Average pooling', init=True)
+	if time_ax:
+		fig, ax1, ax2 = barchart(stats, data['target'], figure_name, fig, ax1, ax2, 'Average pooling', init=True, freq=False, time_ax=time_ax)
+	else:
+		fig, ax1, ax2 = barchart(stats, data['target'], figure_name, fig, ax1, ax2, 'Average pooling', init=True, freq=True, time_ax=time_ax)
 	
 	
 	print('\n\n-------------------\n4')
@@ -318,7 +336,7 @@ def test_real_data():
 			'output': b2}
 	#data = normalization(data)
 	stats = calculate_stats(data['output'], data['target'], th)
-	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='figures/max_pool.png', fig, ax1, ax2, 'Max pooling', init=False)
+	fig, ax1, ax2 = barchart(stats, data['target'], figure_name, fig, ax1, ax2, 'Max pooling', init=False, freq=False, time_ax=time_ax)
 	
 	print('\n\n-------------------\n1')
 	output, cla, norm_att, mult = load_data(1)
@@ -329,12 +347,12 @@ def test_real_data():
 	stats = calculate_stats(data['output'], data['target'], th)
 	data['target'] = data['target'].transpose(0,2,1)
 	
-	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='figures/single_att.png', fig, ax1, ax2, label='Single attention', init=False)
+	fig, ax1, ax2 = barchart(stats, data['target'], figure_name, fig, ax1, ax2, label='Single attention', init=False, freq=False, time_ax=time_ax)
 
 
 if __name__ == '__main__':
 	#stats = test_calculate_stats()
 	#test_barchart(stats)
 
-	test_real_data()
-	
+	test_real_data(time_ax=False, figure_name='figures/auc_classes.png')
+	test_real_data(time_ax=True, figure_name='figures/auc_time.png')
