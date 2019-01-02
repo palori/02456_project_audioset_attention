@@ -9,7 +9,7 @@ import math
 import logging
 from sklearn import metrics
 from utils import utilities, data_generator
-import core
+import core_3
 
 import torch
 import torch.nn as nn
@@ -422,7 +422,7 @@ def train(args):
     args.batch_size = batch_size
 
     # Train
-    core.train(args)
+    core_3.train(args)
 
 
 def test(args):
@@ -487,7 +487,7 @@ def test(args):
     args.batch_size = batch_size
 
     # Train
-    core.test(args)
+    core_3.test(args)
 
 
 

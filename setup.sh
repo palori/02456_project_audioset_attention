@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # SETUP FOLDERS TO RUN THE CODE #
-echo "\n\n*********\n* Setup *\n*********\n"
+echo
+echo
+echo "*********"
+echo "* Setup *"
+echo "*********"
+echo
 cd ..
 
 # 1. download 'packed_features'
@@ -15,11 +20,13 @@ FEATURES="pf.zip"
 #rm $FEATURES
 
 # 2. clone AudioSet repository from https://github.com/qiuqiangkong/audioset_classification
-echo "\n    2. Clone AudioSet repository"
+echo
+echo "    2. Clone AudioSet repository"
 git clone https://github.com/qiuqiangkong/audioset_classification.git
 
 # 3. clone DCASE repository
-echo "\n    3. Clone DCASE repository"
+echo
+echo "    3. Clone DCASE repository"
 git clone https://github.com/DCASE-REPO/dcase2018_baseline.git
 
 #echo "\n    4. Download AudioSet csv's"
@@ -36,16 +43,26 @@ git clone https://github.com/DCASE-REPO/dcase2018_baseline.git
 #echo `pwd`
 #sh `pwd`/data_generator.sh # call another shell script, not ready yet
 
-# @@@@ Possibility to have our 'main2.py' and 'core2.py' in our repo and 
-# copy/link it to 'audioset_classification'.
-# then have a 'runme.sh' in our repo that will run the 'main2.py' from
-# 'audioset_classification'
-
+# 6. Create a symbolic link of our 'main_3.py' and 'core_3.py' from our repo 
+# into 'audioset_classification'.
+# then have a 'runme.sh' in our repo that will run the 'main_3.py' from
+# 'audioset_classification
+echo
+echo "    6. Create a symbolik link of 'main_3.py' and 'core_3.py' in:"
+echo "`pwd`" #/../audioset_classification/pytorch/"
+sudo ln -s `pwd`/main_3.py `pwd`/audioset_classification/pytorch/
+#echo "    main_3.py - linked"
+sudo ln -s `pwd`/core_3.py `pwd`/audioset_classification/pytorch/
+#echo "    core_3.py - linked"
 
 #### remove all
 #echo "\nRemove all..."
 #echo `pwd`
 #sh `pwd`/remove_all.sh # call another shell script
 
-
-echo "\n\n***************\n* Setup done! *\n***************\n"
+echo
+echo
+echo "***************"
+echo "* Setup done! *"
+echo "***************"
+echo

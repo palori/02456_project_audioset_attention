@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
-def barchart(stats, target, fig=None, ax1=None, ax2=None, label='change', init=False):
+def barchart(stats, target, figure_name, fig=None, ax1=None, ax2=None, label='change', init=False):
 	"""Random chance to be included inside 
 	"""
 	print(stats)
@@ -34,14 +34,14 @@ def barchart(stats, target, fig=None, ax1=None, ax2=None, label='change', init=F
 	ap1 = np.mean(ap, axis=1)
 	ap0 = np.array([ap0[i] for i in indexes])
 	ap1 = np.array([ap1[i] for i in indexes])
-    
+	
 	if init :
-        # Create a figure
+		# Create a figure
 		fig = plt.figure(1, clear=True, figsize=(8,6))
 		ax1 = fig.subplots()
 		ax2 = ax1.twinx()
-    
-    
+	
+	
 		ax1.bar(y_pos, frequency, align='center', alpha=0.5, color='lightsteelblue')#'paleturquoise')
 		#plt.yticks(y_pos, classes)
 		ax1.set_ylabel('Frequency', color='b')
@@ -73,7 +73,7 @@ def barchart(stats, target, fig=None, ax1=None, ax2=None, label='change', init=F
 		#ax2.legend(loc=1, bbox_to_anchor=(0.6,0.5))
 
 	fig.show()
-	fig.savefig('foo2.png')
+	fig.savefig(figure_name)
 	return fig, ax1, ax2
 
 def confusion_plot(output, target, confusionmode):
@@ -145,7 +145,7 @@ def calculate_stats(output, target, threshold):
 				'auc': np.zeros((10,10))}
 
 	#target = target.transpose(0,2,1)
-    # Class-wise statistics
+	# Class-wise statistics
 	for j, k in [(j,k) for j in range(timestep_num) for k in range(classes_num)]:
 		#print((j,k))
 		# Piecewise comparison
@@ -260,81 +260,81 @@ def normalization(data):
 		print('maxi: ',maxi)
 		"""
 		data[k] = np.sqrt(np.sqrt(np.sqrt(data[k])))
-        
+		
 	print('data22: ', data)
 	return data
 
 def test_real_data():
-    '''
+	'''
 	file2test:
 	  0 ground truth
 	  1 single attention
 	  2 multi attention
 	  3 average pooling
 	  4 max pooling
-    '''
-    th = 0.8
-    x, y = load_data(0)
-    
-    fig=None
-    ax1=None
-    ax2=None
-    '''
-    print('\n\n-------------------\n1')
-    output, cla, norm_att, mult = load_data(1)
-    y = y.transpose(0,2,1)
-    data = {'target': y,
-	        'output': cla}
-    #data = normalization(data)
-    stats = calculate_stats(data['output'], data['target'], th)
-    data['target'] = data['target'].transpose(0,2,1)
-    
-    fig, ax1, ax2 = barchart(stats, data['target'], fig, ax1, ax2, label='Single attention', init=True)
-    
+	'''
+	th = 0.8
+	x, y = load_data(0)
 	
-    print('\n\n-------------------\n2')
-    output, cla, norm_att, mult, cla2, norm_att2, mult2 = load_data(2)
-    cla = (cla+cla2)/2
-    print(cla.shape)
-    data = {'target': y,
-	        'output': cla}
-    #data = normalization(data)
-    stats = calculate_stats(data['output'], data['target'], th)
-    barchart(stats, y)
-    '''
-    
-    print('\n\n-------------------\n3')
-    output, b2 = load_data(3)
-    data = {'target': y,
-	        'output': b2}
-    #data = normalization(data)
-    stats = calculate_stats(data['output'], data['target'], th)
-    fig, ax1, ax2 = barchart(stats, data['target'], fig, ax1, ax2, 'Average pooling', init=True)
-    
-    
-    print('\n\n-------------------\n4')
-    output, b2 = load_data(4)
-    data = {'target': y,
-	        'output': b2}
-    #data = normalization(data)
-    stats = calculate_stats(data['output'], data['target'], th)
-    fig, ax1, ax2 = barchart(stats, data['target'], fig, ax1, ax2, 'Max pooling', init=False)
+	fig=None
+	ax1=None
+	ax2=None
+	'''
+	print('\n\n-------------------\n1')
+	output, cla, norm_att, mult = load_data(1)
+	y = y.transpose(0,2,1)
+	data = {'target': y,
+			'output': cla}
+	#data = normalization(data)
+	stats = calculate_stats(data['output'], data['target'], th)
+	data['target'] = data['target'].transpose(0,2,1)
 	
-    print('\n\n-------------------\n1')
-    output, cla, norm_att, mult = load_data(1)
-    y = y.transpose(0,2,1)
-    data = {'target': y,
-	        'output': cla}
-    #data = normalization(data)
-    stats = calculate_stats(data['output'], data['target'], th)
-    data['target'] = data['target'].transpose(0,2,1)
-    
-    fig, ax1, ax2 = barchart(stats, data['target'], fig, ax1, ax2, label='Single attention', init=False)
+	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='foo2.png', fig, ax1, ax2, label='Single attention', init=True)
+	
+	
+	print('\n\n-------------------\n2')
+	output, cla, norm_att, mult, cla2, norm_att2, mult2 = load_data(2)
+	cla = (cla+cla2)/2
+	print(cla.shape)
+	data = {'target': y,
+			'output': cla}
+	#data = normalization(data)
+	stats = calculate_stats(data['output'], data['target'], th)
+	barchart(stats, y)
+	'''
+	
+	print('\n\n-------------------\n3')
+	output, b2 = load_data(3)
+	data = {'target': y,
+			'output': b2}
+	#data = normalization(data)
+	stats = calculate_stats(data['output'], data['target'], th)
+	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='figures/avg_pool.png', fig, ax1, ax2, 'Average pooling', init=True)
+	
+	
+	print('\n\n-------------------\n4')
+	output, b2 = load_data(4)
+	data = {'target': y,
+			'output': b2}
+	#data = normalization(data)
+	stats = calculate_stats(data['output'], data['target'], th)
+	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='figures/max_pool.png', fig, ax1, ax2, 'Max pooling', init=False)
+	
+	print('\n\n-------------------\n1')
+	output, cla, norm_att, mult = load_data(1)
+	y = y.transpose(0,2,1)
+	data = {'target': y,
+			'output': cla}
+	#data = normalization(data)
+	stats = calculate_stats(data['output'], data['target'], th)
+	data['target'] = data['target'].transpose(0,2,1)
+	
+	fig, ax1, ax2 = barchart(stats, data['target'], figure_name='figures/single_att.png', fig, ax1, ax2, label='Single attention', init=False)
 
 
 if __name__ == '__main__':
 	#stats = test_calculate_stats()
 	#test_barchart(stats)
-	
+
 	test_real_data()
 	

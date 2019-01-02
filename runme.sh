@@ -7,7 +7,7 @@
 # You need to modify the dataset path.
 # "/vol/vssp/msos/audioset/packed_features"
 
-DATA_DIR="`pwd`/test_data/recised_0_3000"
+DATA_DIR="`pwd`/data"
 #DATA_DIR="`pwd`/../packed_features"
 
 # You can to modify to your own workspace. 
@@ -23,9 +23,9 @@ MODEL_TYPE="decision_level_single_attention"    # 'decision_level_max_pooling'
                                                 # | 'decision_level_multi_attention'
 
 # Train
-CUDA_VISIBLE_DEVICES=1 python $BACKEND/main.py --data_dir=$DATA_DIR --workspace=$WORKSPACE --model_type=$MODEL_TYPE --mini_data train
+CUDA_VISIBLE_DEVICES=1 python $BACKEND/main_3.py --data_dir=$DATA_DIR --workspace=$WORKSPACE --model_type=$MODEL_TYPE --mini_data train
 
 
 # Calculate averaged statistics. 
-python $BACKEND/main.py --data_dir=$DATA_DIR --workspace=$WORKSPACE --model_type=$MODEL_TYPE --mini_data get_avg_stats
+python $BACKEND/main_3.py --data_dir=$DATA_DIR --workspace=$WORKSPACE --model_type=$MODEL_TYPE --mini_data get_avg_stats
 
