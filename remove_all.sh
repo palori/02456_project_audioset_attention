@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # REMOVE ALL #
-
+rm -rf __pycache__
 cd ..
 rm -rf packed_features
 rm -rf audioset_classification
