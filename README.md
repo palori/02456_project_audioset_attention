@@ -12,9 +12,8 @@ Final project working with Google AudioSet inspired in DCASE2018 Challange (Task
 See project documentation: https://drive.google.com/drive/folders/1wYKw9w9nIngUnUSXUytIEmZBjXbPZIWh<br><br>
 
 
-## !!! BEFORE CLONING THIS REPOSITORY !!!
-We recommend you to create a folder in your computer (e.g. 'your_project') and then clone it inside this folder.<br><br>
-
+### !!! BEFORE CLONING THIS REPOSITORY !!!
+We recommend you to create a folder in your computer (e.g. 'your_project') and then clone it inside this folder.<br>
 
 1. Create a folder `your_project`
 
@@ -44,13 +43,13 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 		    |_ audioset_classification
 		    |_ dcase2018_baseline
 		    |_ packed_features
+<br>
+### Run it and results
+1. If you want to <b>train</b> the network you are now ready to run the `runme.sh` file. It was already done and we provide you the data from the trained models in the `data` folder of this repository.
 
+2. The <b>results</b> of this project are presented in the Jupyter notebook `Results.ipynb`.
 
-4. If you want to <b>train</b> the network you are now ready to run the `runme.sh` file. It was already done and we provide you the data from the trained models in the `data` folder of this repository.
-
-5. The <b>results</b> of this project are presented in the Jupyter notebook `Results.ipynb`.
-
-
+<br>
 
 ### Practical information
 
@@ -62,11 +61,13 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 	your_project/
 	    |_ 02456_project_audioset_attention (this repository)
 
-
+<br>
 
 ### Other sources of information:
 Repositories:
 https://github.com/DTUComputeCognitiveSystems/AI_playground/blob/master/notebooks/experiments/Sound%20Demo%203%20-%20Multi-label%20classifier%20pretrained%20on%20audioset.ipynb
+
+<br>
 
 ### Contact us
 Contact us if you want more information sending an e-mail to `paulopezribas@gmail.com`
