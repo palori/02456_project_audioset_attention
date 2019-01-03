@@ -46,7 +46,7 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 		    |_ packed_features
 
 
-4. If you want to <b>train</b> the network you are now ready to run the `runme.sh` file. It was already done and 
+4. If you want to <b>train</b> the network you are now ready to run the `runme.sh` file. It was already done and we provide you the data from the trained models in the `data` folder of this repository.
 
 5. The <b>results</b> of this project are presented in the Jupyter notebook `Results.ipynb`.
 
@@ -64,12 +64,9 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 
 
 
-
-
-
 ### Other sources of information:
 Repositories:
 https://github.com/DTUComputeCognitiveSystems/AI_playground/blob/master/notebooks/experiments/Sound%20Demo%203%20-%20Multi-label%20classifier%20pretrained%20on%20audioset.ipynb
-.
-.
-.
+
+### Contact us
+Contact us if you want more information sending an e-mail to `paulopezribas@gmail.com`
