@@ -44,6 +44,7 @@ We recommend you to create a folder in your computer (e.g. 'your_project') and t
 		    |_ dcase2018_baseline
 		    |_ packed_features
 <br>
+
 ### Run it and results
 1. If you want to <b>train</b> the network you are now ready to run the `runme.sh` file. It was already done and we provide you the data from the trained models in the `data` folder of this repository.
 
